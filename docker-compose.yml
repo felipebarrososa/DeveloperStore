@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: devstore_postgres
+    environment:
+      POSTGRES_DB: developerstore
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - devstore_pg:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:6
+    container_name: devstore_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - devstore_mongo:/data/db
+
+volumes:
+  devstore_pg:
+  devstore_mongo:
