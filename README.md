@@ -2,7 +2,7 @@
 
 Uma API completa para gerenciamento de vendas desenvolvida em .NET 8.0 seguindo princípios de Domain-Driven Design (DDD).
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **.NET 8.0** - Framework principal
 - **C#** - Linguagem de programação
@@ -16,35 +16,8 @@ Uma API completa para gerenciamento de vendas desenvolvida em .NET 8.0 seguindo 
 - **NSubstitute** - Mocking framework
 - **FluentAssertions** - Assertions para testes
 
-## 📋 Funcionalidades
 
-### 🛍️ API de Vendas (Core Business)
-- ✅ **CRUD completo** de vendas
-- ✅ **Regras de negócio** de desconto por quantidade:
-  - 4+ itens: 10% de desconto
-  - 10-20 itens: 20% de desconto
-  - Máximo 20 itens por produto
-- ✅ **Cancelamento** de vendas e itens individuais
-- ✅ **Eventos de domínio** (SaleCreated, SaleModified, SaleCancelled, ItemCancelled)
-
-### 🔧 APIs de Suporte
-- ✅ **Products API** - Gerenciamento de produtos com categorias
-- ✅ **Users API** - Usuários com roles (Admin, Manager, Customer)
-- ✅ **Carts API** - Carrinhos de compra
-- ✅ **Auth API** - Autenticação JWT
-
-### 🌟 Funcionalidades Avançadas
-- ✅ **Paginação** com `_page` e `_size`
-- ✅ **Ordenação** com `_order` (ex: "price desc, title asc")
-- ✅ **Filtros avançados**:
-  - Filtros parciais com `*` (ex: `title=*phone*`)
-  - Filtros de range com `_min` e `_max` (ex: `_minPrice=50&_maxPrice=200`)
-  - Filtros por categoria, status, role, etc.
-- ✅ **Validação automática** com FluentValidation
-- ✅ **Tratamento de erros** padronizado
-- ✅ **Autenticação e autorização** por roles
-
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```
 src/
@@ -58,7 +31,7 @@ tests/
 └── DeveloperStore.IntegrationTests/ # Testes de integração
 ```
 
-## 🚀 Como Executar
+## Como Executar
 
 ### Pré-requisitos
 - .NET 8.0 SDK
@@ -89,7 +62,7 @@ A API estará disponível em: `https://localhost:7000` ou `http://localhost:5000
 https://localhost:7000/
 ```
 
-## 🧪 Como Testar
+## Como Testar
 
 ### Executar testes unitários
 ```bash
@@ -108,7 +81,7 @@ dotnet test
 dotnet test tests/
 ```
 
-## 🔐 Credenciais de Teste
+## Credenciais de Teste
 
 ### Usuários pré-criados:
 - **Admin**: `admin` / `Pass@123`
@@ -124,7 +97,7 @@ POST /auth/login
 }
 ```
 
-## 📊 Exemplos de Uso
+## Exemplos de Uso
 
 ### Listar produtos com filtros e ordenação
 ```bash
@@ -158,20 +131,20 @@ Authorization: Bearer <token>
 }
 ```
 
-## 🧪 Cobertura de Testes
+## Cobertura de Testes
 
 ### Testes Unitários
-- ✅ **DiscountCalculator** - Regras de desconto
-- ✅ **OrderParser** - Parser de ordenação
-- ✅ **Validators** - Validação de DTOs
-- ✅ **Handlers** - Lógica de negócio das vendas
+- **DiscountCalculator** - Regras de desconto
+- **OrderParser** - Parser de ordenação
+- **Validators** - Validação de DTOs
+- **Handlers** - Lógica de negócio das vendas
 
 ### Testes de Integração
-- ✅ **APIs principais** - Products, Users, Carts, Sales
-- ✅ **Filtros e paginação** - Funcionalidades de listagem
-- ✅ **Tratamento de erros** - Respostas HTTP corretas
+- **APIs principais** - Products, Users, Carts, Sales
+- **Filtros e paginação** - Funcionalidades de listagem
+- **Tratamento de erros** - Respostas HTTP corretas
 
-## 🔧 Configuração
+## Configuração
 
 ### Variáveis de ambiente
 ```json
@@ -207,14 +180,6 @@ services:
       - "27017:27017"
 ```
 
-## 📈 Funcionalidades de Venda
-
-### Regras de Desconto
-- **Quantidade 1-3**: Sem desconto
-- **Quantidade 4-9**: 10% de desconto
-- **Quantidade 10-20**: 20% de desconto
-- **Quantidade >20**: Não permitido
-
 ### Estrutura de Venda
 ```json
 {
@@ -241,7 +206,7 @@ services:
 }
 ```
 
-## 🎯 Endpoints Principais
+## Endpoints Principais
 
 ### Sales API
 - `GET /sales` - Listar vendas com filtros
@@ -271,14 +236,6 @@ services:
 ### Auth API
 - `POST /auth/login` - Autenticação
 
-## 🚀 Deploy
-
-### Produção
-1. Configure as variáveis de ambiente
-2. Use um banco PostgreSQL gerenciado
-3. Use um cluster MongoDB gerenciado
-4. Configure HTTPS e certificados SSL
-5. Use um reverse proxy (nginx, IIS)
 
 ### Docker
 ```bash
@@ -286,17 +243,9 @@ docker build -t developerstore .
 docker run -p 5000:5000 developerstore
 ```
 
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📝 Licença
+## Licença
 
 Uso educacional e de avaliação técnica.
 
 
-**DeveloperStore** - Uma API robusta e escalável para gerenciamento de vendas 🚀
+**DeveloperStore** - 
