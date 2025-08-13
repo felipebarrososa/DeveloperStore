@@ -49,13 +49,13 @@ docker compose up -d
 
 Cria:
 - **Postgres** em `localhost:5432` com:
-  - DB: `devstore`
-  - Usuário: `devstore`
-  - Senha: `devstore`
+  - DB: `developerstore`
+  - Usuário: `devuser`
+  - Senha: `devpass`
 
 > Dica: para ver usuários seedados na tabela `Users`:
 ```bash
-docker exec -it devstore_postgres psql -U devstore -d devstore -c 'select "Id","Username","Email","Role" from "Users" order by "Id";'
+docker exec -it devstore_postgres psql -U devuser -d developerstore -c 'select "Id","Username","Email","Role" from "Users" order by "Id";'
 ```
 
 ### (Opcional) MongoDB local
@@ -239,7 +239,7 @@ Se configurado (`Mongo__ConnectionString` / `Mongo__Database`), os *upserts* no 
 ## Testes & Cobertura
 **Rodar testes:**
 ```bash
-dotnet test .	ests\DeveloperStore.UnitTests\DeveloperStore.UnitTests.csproj
+dotnet test tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj
 ```
 Saída esperada:
 ```
@@ -248,7 +248,7 @@ Resumo do teste: total: 17; falhou: 0; bem-sucedido: 17; ignorado: 0
 
 **Cobertura (opcional):**
 ```bash
-dotnet test .	ests\DeveloperStore.UnitTests\DeveloperStore.UnitTests.csproj --collect:"XPlat Code Coverage"
+dotnet test tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj --collect:"XPlat Code Coverage"
 dotnet tool install -g dotnet-reportgenerator-globaltool
 reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport"
 # abra coveragereport/index.html
@@ -304,12 +304,12 @@ Uso educacional e de avaliação técnica.
 ---
 
 ### Anexos (úteis para o avaliador)
-- **Credenciais Postgres:** `devstore` / `devstore` (DB `devstore`)
+- **Credenciais Postgres:** `devuser` / `devpass` (DB `developerstore`)
 - **Login para gerar token (Admin):** `admin` / `Pass@123`
 - **Swagger:** `http://localhost:5000/swagger`
 - **Comandos principais:**
   ```bash
   docker compose up -d
-  dotnet run --project .\src\DeveloperStore.Api\DeveloperStore.Api.csproj
-  dotnet test .	ests\DeveloperStore.UnitTests\DeveloperStore.UnitTests.csproj
+  dotnet run --project src/DeveloperStore.Api/DeveloperStore.Api.csproj
+  dotnet test tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj
   ```
