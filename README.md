@@ -86,7 +86,7 @@ A API estará disponível em: `https://localhost:7000` ou `http://localhost:5000
 
 ### 4. Acesse o Swagger
 ```
-https://localhost:7000/swagger
+https://localhost:7000/
 ```
 
 ## 🧪 Como Testar
