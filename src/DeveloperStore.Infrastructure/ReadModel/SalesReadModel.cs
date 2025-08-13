@@ -41,7 +41,7 @@ public class SalesReadModel
                 { "_id", 0 }
             })
             .Sort(new BsonDocument { { "BranchId", 1 }, { "Date", 1 } })
-            .As<BranchDailySummary>() // desserializa direto para a classe
+            .As<BranchDailySummary>()
             .ToListAsync(ct);
 
         return results;

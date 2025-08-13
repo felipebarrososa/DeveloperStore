@@ -24,11 +24,143 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResult<UserDto>>> Get([FromQuery(Name = "_page")] int page = 1, [FromQuery(Name = "_size")] int size = 10, [FromQuery(Name = "_order")] string? order = null)
+    public async Task<ActionResult<PagedResult<UserDto>>> Get(
+        [FromQuery(Name = "_page")] int page = 1, 
+        [FromQuery(Name = "_size")] int size = 10, 
+        [FromQuery(Name = "_order")] string? order = null,
+        [FromQuery] string? username = null,
+        [FromQuery] string? email = null,
+        [FromQuery] string? firstname = null,
+        [FromQuery] string? lastname = null,
+        [FromQuery] string? city = null,
+        [FromQuery] UserStatus? status = null,
+        [FromQuery] UserRole? role = null)
     {
         page = page < 1 ? 1 : page;
         size = size < 1 ? 10 : Math.Min(size, 100);
         var query = _db.Users.AsNoTracking();
+
+       
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            if (username.StartsWith("*") && username.EndsWith("*"))
+            {
+                var searchTerm = username.Trim('*');
+                query = query.Where(u => u.Username.Contains(searchTerm));
+            }
+            else if (username.StartsWith("*"))
+            {
+                var searchTerm = username.TrimStart('*');
+                query = query.Where(u => u.Username.EndsWith(searchTerm));
+            }
+            else if (username.EndsWith("*"))
+            {
+                var searchTerm = username.TrimEnd('*');
+                query = query.Where(u => u.Username.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(u => u.Username == username);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            if (email.StartsWith("*") && email.EndsWith("*"))
+            {
+                var searchTerm = email.Trim('*');
+                query = query.Where(u => u.Email.Contains(searchTerm));
+            }
+            else if (email.StartsWith("*"))
+            {
+                var searchTerm = email.TrimStart('*');
+                query = query.Where(u => u.Email.EndsWith(searchTerm));
+            }
+            else if (email.EndsWith("*"))
+            {
+                var searchTerm = email.TrimEnd('*');
+                query = query.Where(u => u.Email.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(u => u.Email == email);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(firstname))
+        {
+            if (firstname.StartsWith("*") && firstname.EndsWith("*"))
+            {
+                var searchTerm = firstname.Trim('*');
+                query = query.Where(u => u.Name.Firstname.Contains(searchTerm));
+            }
+            else if (firstname.StartsWith("*"))
+            {
+                var searchTerm = firstname.TrimStart('*');
+                query = query.Where(u => u.Name.Firstname.EndsWith(searchTerm));
+            }
+            else if (firstname.EndsWith("*"))
+            {
+                var searchTerm = firstname.TrimEnd('*');
+                query = query.Where(u => u.Name.Firstname.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(u => u.Name.Firstname == firstname);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(lastname))
+        {
+            if (lastname.StartsWith("*") && lastname.EndsWith("*"))
+            {
+                var searchTerm = lastname.Trim('*');
+                query = query.Where(u => u.Name.Lastname.Contains(searchTerm));
+            }
+            else if (lastname.StartsWith("*"))
+            {
+                var searchTerm = lastname.TrimStart('*');
+                query = query.Where(u => u.Name.Lastname.EndsWith(searchTerm));
+            }
+            else if (lastname.EndsWith("*"))
+            {
+                var searchTerm = lastname.TrimEnd('*');
+                query = query.Where(u => u.Name.Lastname.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(u => u.Name.Lastname == lastname);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            if (city.StartsWith("*") && city.EndsWith("*"))
+            {
+                var searchTerm = city.Trim('*');
+                query = query.Where(u => u.Address.City.Contains(searchTerm));
+            }
+            else if (city.StartsWith("*"))
+            {
+                var searchTerm = city.TrimStart('*');
+                query = query.Where(u => u.Address.City.EndsWith(searchTerm));
+            }
+            else if (city.EndsWith("*"))
+            {
+                var searchTerm = city.TrimEnd('*');
+                query = query.Where(u => u.Address.City.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(u => u.Address.City == city);
+            }
+        }
+
+        if (status.HasValue)
+            query = query.Where(u => u.Status == status.Value);
+
+        if (role.HasValue)
+            query = query.Where(u => u.Role == role.Value);
 
         if (!string.IsNullOrWhiteSpace(order))
             query = Application.Common.OrderParser.ApplyOrder(query, order);
@@ -89,7 +221,7 @@ public class UsersController : ControllerBase
         var entity = await _db.Users.FindAsync(id);
         if (entity == null) return NotFound(new { type = "NotFound", error = "User not found", detail = $"id={id}" });
 
-        // unique checks
+        
         var emailTaken = await _db.Users.AnyAsync(u => u.Email == dto.Email && u.Id != id);
         var usernameTaken = await _db.Users.AnyAsync(u => u.Username == dto.Username && u.Id != id);
         if (emailTaken || usernameTaken) return Conflict(new { type = "Conflict", error = "User exists", detail = "Email or username already used" });

@@ -21,12 +21,34 @@ public class CartsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CartDto>>> Get([FromQuery(Name = "_page")] int page = 1, [FromQuery(Name = "_size")] int size = 10)
+    public async Task<ActionResult<IEnumerable<CartDto>>> Get(
+        [FromQuery(Name = "_page")] int page = 1, 
+        [FromQuery(Name = "_size")] int size = 10,
+        [FromQuery(Name = "_order")] string? order = null,
+        [FromQuery(Name = "_minDate")] DateOnly? minDate = null,
+        [FromQuery(Name = "_maxDate")] DateOnly? maxDate = null,
+        [FromQuery] int? userId = null)
     {
         page = page < 1 ? 1 : page;
         size = size < 1 ? 10 : Math.Min(size, 100);
 
         var query = _db.Carts.Include(c => c.Items).AsNoTracking();
+
+        
+        if (minDate.HasValue)
+            query = query.Where(c => c.Date >= minDate.Value);
+
+        if (maxDate.HasValue)
+            query = query.Where(c => c.Date <= maxDate.Value);
+
+        if (userId.HasValue)
+            query = query.Where(c => c.UserId == userId.Value);
+
+        if (!string.IsNullOrWhiteSpace(order))
+        {
+            query = DeveloperStore.Application.Common.OrderParser.ApplyOrder(query, order);
+        }
+
         var total = await query.CountAsync();
         var carts = await query.Skip((page - 1) * size).Take(size).ToListAsync();
         var data = carts.Select(c => _mapper.Map<CartDto>(c));
@@ -45,7 +67,6 @@ public class CartsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CartDto>> Create(CreateCartDto dto)
     {
-        // Basic validation: user exists, products exist
         var userExists = await _db.Users.AnyAsync(u => u.Id == dto.UserId);
         if (!userExists) return UnprocessableEntity(new { type = "ValidationError", error = "Invalid userId", detail = $"userId={dto.UserId}" });
 
@@ -74,7 +95,6 @@ public class CartsController : ControllerBase
 
         entity.UserId = dto.UserId;
         entity.Date = dto.Date;
-        // replace items
         _db.CartItems.RemoveRange(entity.Items);
         entity.Items = dto.Products.Select(p => new DeveloperStore.Domain.Entities.CartItem { ProductId = p.ProductId, Quantity = p.Quantity }).ToList();
         await _db.SaveChangesAsync();

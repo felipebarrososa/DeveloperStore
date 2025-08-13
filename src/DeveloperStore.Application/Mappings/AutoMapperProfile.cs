@@ -38,10 +38,10 @@ public class AutoMapperProfile : Profile
             .ForMember(d => d.Products,
                 o => o.MapFrom(s => s.Items.Select(i => new CartItemDto(i.ProductId, i.Quantity))));
 
-        // === Sales (NOVO) ===
-        // Item da venda -> DTO de saída
+        // Sales 
+        
         CreateMap<SaleItem, SaleItemOut>();
-        // Venda -> DTO de saída (inclui lista de itens)
+        
         CreateMap<Sale, SaleDto>()
             .ForMember(d => d.Items, o => o.MapFrom(s => s.Items));
     }

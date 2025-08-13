@@ -20,9 +20,10 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
-		<!-- alinhei com o projeto para evitar NU1608 -->
+		
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="MongoDB.Driver" Version="2.27.0" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>

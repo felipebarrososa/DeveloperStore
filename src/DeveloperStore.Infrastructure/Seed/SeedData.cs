@@ -50,7 +50,7 @@ public static class SeedData
 
             var users = userFaker.Generate(5);
 
-            // Add fixed users with known credentials
+            
             users.Add(new User
             {
                 Email = "admin@devstore.com",

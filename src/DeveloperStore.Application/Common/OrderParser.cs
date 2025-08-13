@@ -5,9 +5,13 @@ namespace DeveloperStore.Application.Common;
 
 public static class OrderParser
 {
-    public static IOrderedQueryable<T> ApplyOrder<T>(IQueryable<T> source, string order)
+    public static IOrderedQueryable<T> ApplyOrder<T>(IQueryable<T> source, string? order)
     {
-        // order example: "price desc,title asc"
+        
+        if (string.IsNullOrWhiteSpace(order))
+            return (IOrderedQueryable<T>)source;
+
+       
         var parts = order.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         IOrderedQueryable<T>? ordered = null;
         foreach (var (idx, part) in parts.Select((p, i) => (i, p)))

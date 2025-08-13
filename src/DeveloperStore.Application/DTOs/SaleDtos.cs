@@ -28,7 +28,6 @@ public class SaleDto
     public SaleDto() { } 
 }
 
-// Você pode manter o item de saída como record (AutoMapper mapeia via construtor)
 public record SaleItemOut(
     int ProductId, string ProductName, int Quantity,
     decimal UnitPrice, decimal DiscountPercent, decimal Total, bool Cancelled);

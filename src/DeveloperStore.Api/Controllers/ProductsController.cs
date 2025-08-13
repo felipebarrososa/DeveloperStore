@@ -22,12 +22,80 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResult<ProductDto>>> Get([FromQuery(Name = "_page")] int page = 1, [FromQuery(Name = "_size")] int size = 10, [FromQuery(Name = "_order")] string? order = null)
+    public async Task<ActionResult<PagedResult<ProductDto>>> Get(
+        [FromQuery(Name = "_page")] int page = 1, 
+        [FromQuery(Name = "_size")] int size = 10, 
+        [FromQuery(Name = "_order")] string? order = null,
+        [FromQuery] string? title = null,
+        [FromQuery] string? category = null,
+        [FromQuery(Name = "_minPrice")] decimal? minPrice = null,
+        [FromQuery(Name = "_maxPrice")] decimal? maxPrice = null,
+        [FromQuery(Name = "_minRate")] decimal? minRate = null,
+        [FromQuery(Name = "_maxRate")] decimal? maxRate = null)
     {
         page = page < 1 ? 1 : page;
         size = size < 1 ? 10 : Math.Min(size, 100);
 
         var query = _db.Products.AsNoTracking();
+
+        
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            if (title.StartsWith("*") && title.EndsWith("*"))
+            {
+                var searchTerm = title.Trim('*');
+                query = query.Where(p => p.Title.Contains(searchTerm));
+            }
+            else if (title.StartsWith("*"))
+            {
+                var searchTerm = title.TrimStart('*');
+                query = query.Where(p => p.Title.EndsWith(searchTerm));
+            }
+            else if (title.EndsWith("*"))
+            {
+                var searchTerm = title.TrimEnd('*');
+                query = query.Where(p => p.Title.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(p => p.Title == title);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            if (category.StartsWith("*") && category.EndsWith("*"))
+            {
+                var searchTerm = category.Trim('*');
+                query = query.Where(p => p.Category.Contains(searchTerm));
+            }
+            else if (category.StartsWith("*"))
+            {
+                var searchTerm = category.TrimStart('*');
+                query = query.Where(p => p.Category.EndsWith(searchTerm));
+            }
+            else if (category.EndsWith("*"))
+            {
+                var searchTerm = category.TrimEnd('*');
+                query = query.Where(p => p.Category.StartsWith(searchTerm));
+            }
+            else
+            {
+                query = query.Where(p => p.Category == category);
+            }
+        }
+
+        if (minPrice.HasValue)
+            query = query.Where(p => p.Price >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            query = query.Where(p => p.Price <= maxPrice.Value);
+
+        if (minRate.HasValue)
+            query = query.Where(p => p.Rating.Rate >= minRate.Value);
+
+        if (maxRate.HasValue)
+            query = query.Where(p => p.Rating.Rate <= maxRate.Value);
 
         if (!string.IsNullOrWhiteSpace(order))
         {

@@ -19,24 +19,21 @@ public class DeveloperStoreDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Product Rating owned
+        
         modelBuilder.Entity<Product>().OwnsOne(p => p.Rating);
 
-        // User owned types
         modelBuilder.Entity<User>().OwnsOne(u => u.Name);
         modelBuilder.Entity<User>().OwnsOne(u => u.Address, a =>
         {
             a.OwnsOne(x => x.Geo);
         });
 
-        // Cart & CartItem
         modelBuilder.Entity<CartItem>()
             .HasOne<Cart>()
             .WithMany(c => c.Items)
             .HasForeignKey(i => i.CartId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Sales
         modelBuilder.Entity<Sale>().HasIndex(s => s.Number).IsUnique();
         modelBuilder.Entity<SaleItem>()
             .HasOne<Sale>()

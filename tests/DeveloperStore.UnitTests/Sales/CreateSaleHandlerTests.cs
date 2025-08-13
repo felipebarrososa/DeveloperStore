@@ -27,7 +27,7 @@ public class CreateSaleHandlerTests
         var coll = Substitute.For<IMongoCollection<SaleDoc>>();
         mongoDb.GetCollection<SaleDoc>("sales", Arg.Any<MongoCollectionSettings>()).Returns(coll);
 
-        // use o overload com FilterDefinition
+        
         coll.ReplaceOneAsync(
                 Arg.Any<FilterDefinition<SaleDoc>>(),
                 Arg.Any<SaleDoc>(),

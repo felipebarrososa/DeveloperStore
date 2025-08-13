@@ -19,13 +19,20 @@ public class SalesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery(Name="_page")] int page = 1, [FromQuery(Name="_size")] int size = 10,
-                                         [FromQuery(Name="_order")] string? order = null,
-                                         [FromQuery] DateOnly? from = null, [FromQuery] DateOnly? to = null,
-                                         [FromQuery] string? customer = null, [FromQuery] string? branch = null,
-                                         CancellationToken ct = default)
+    public async Task<IActionResult> Get(
+        [FromQuery(Name="_page")] int page = 1, 
+        [FromQuery(Name="_size")] int size = 10,
+        [FromQuery(Name="_order")] string? order = null,
+        [FromQuery] DateOnly? from = null, 
+        [FromQuery] DateOnly? to = null,
+        [FromQuery] string? customer = null, 
+        [FromQuery] string? branch = null,
+        [FromQuery(Name="_minTotal")] decimal? minTotal = null,
+        [FromQuery(Name="_maxTotal")] decimal? maxTotal = null,
+        [FromQuery] bool? cancelled = null,
+        CancellationToken ct = default)
     {
-        var (data, total) = await _mediator.Send(new GetSalesQuery(page, size, order, from, to, customer, branch), ct);
+        var (data, total) = await _mediator.Send(new GetSalesQuery(page, size, order, from, to, customer, branch, minTotal, maxTotal, cancelled), ct);
         return Ok(new { data, totalItems = total, currentPage = page, totalPages = (int)Math.Ceiling(total / (double)size) });
     }
 
@@ -69,7 +76,7 @@ public class SalesController : ControllerBase
         return NoContent();
     }
 
-    // Read model summary (Mongo)
+    
     [HttpGet("summary")]
     public async Task<IActionResult> Summary([FromQuery] DateOnly? from = null, [FromQuery] DateOnly? to = null, CancellationToken ct = default)
     {

@@ -19,7 +19,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand>
         _db = db; _logger = logger; _rm = rm;
     }
 
-    // MediatR 12: IRequest -> Task
+    
     public async Task Handle(UpdateSaleCommand request, CancellationToken ct)
     {
         var entity = await _db.Sales.Include(s => s.Items).FirstOrDefaultAsync(s => s.Id == request.Id, ct);

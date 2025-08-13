@@ -23,7 +23,6 @@ public class CancelHandlersTests
         var coll = Substitute.For<IMongoCollection<SaleDoc>>();
         mongoDb.GetCollection<SaleDoc>("sales", Arg.Any<MongoCollectionSettings>()).Returns(coll);
 
-        // overload com FilterDefinition
         coll.ReplaceOneAsync(
                 Arg.Any<FilterDefinition<SaleDoc>>(),
                 Arg.Any<SaleDoc>(),
@@ -48,7 +47,7 @@ public class CancelHandlersTests
         await cancelSale.Handle(new CancelSaleCommand(sale.Id), CancellationToken.None);
 
         var found = await db.Sales.FindAsync(sale.Id);
-        found!.Cancelled.Should().BeTrue(); // null-forgiving para evitar CS8602
+        found!.Cancelled.Should().BeTrue(); 
     }
 
     [Fact]
@@ -65,6 +64,6 @@ public class CancelHandlersTests
         await cancelItem.Handle(new CancelSaleItemCommand(sale.Id, sale.Items[1].Id), CancellationToken.None);
 
         var found = await db.Sales.FindAsync(sale.Id);
-        found!.Total.Should().Be(360m); // só o primeiro item (360)
+        found!.Total.Should().Be(360m); 
     }
 }

@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
                  ?? "Host=localhost;Port=5432;Database=developerstore;Username=devuser;Password=devpass";
         services.AddDbContext<DeveloperStoreDbContext>(opt => { opt.UseNpgsql(cs); });
 
-        // Mongo (read-model)
+        
         var mongoCs = config.GetConnectionString("Mongo") ?? "mongodb://localhost:27017";
         services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoCs));
         services.AddScoped(provider => provider.GetRequiredService<IMongoClient>().GetDatabase("developerstore"));

@@ -21,7 +21,6 @@ public class GetSalesHandlerTests
         var mapper = TestUtils.NewMapper();
         var h = new GetSalesHandler(db, mapper);
 
-        // seed: Ana+Centro aparecem nos i: 0, 6, 12 (3 itens)
         for (int i = 0; i < 15; i++)
         {
             db.Sales.Add(new Sale
@@ -37,14 +36,13 @@ public class GetSalesHandlerTests
         }
         await db.SaveChangesAsync();
 
-        // Page=1 (senão a coleção filtrada fica vazia)
-        var (data, total) = await h.Handle(
-            new GetSalesQuery(Page: 1, Size: 5, Order: null, From: null, To: null, Customer: "ana", Branch: "centro"),
+        var result = await h.Handle(
+            new GetSalesQuery(Page: 1, Size: 5, Order: null, From: null, To: null, Customer: "Ana", Branch: "Centro", MinTotal: null, MaxTotal: null, Cancelled: null),
             CancellationToken.None);
 
-        total.Should().BeGreaterThan(0);
-        data.Should().OnlyContain(s => s.CustomerName.ToLower().Contains("ana") && s.BranchName.ToLower().Contains("centro"));
-        data.Count().Should().BeLessOrEqualTo(5);
+        result.total.Should().BeGreaterThan(0);
+        result.data.Should().OnlyContain(s => s.CustomerName == "Ana" && s.BranchName == "Centro");
+        result.data.Count().Should().BeLessOrEqualTo(5);
     }
 
     [Fact]

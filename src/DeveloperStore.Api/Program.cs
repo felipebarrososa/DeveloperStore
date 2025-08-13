@@ -9,8 +9,12 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MediatR;
+using FluentValidation;
+using DeveloperStore.Application.Sales;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:7000");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -37,14 +41,16 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// MediatR (scan API assembly and Application)
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
     cfg.RegisterServicesFromAssembly(typeof(DeveloperStore.Application.Mappings.AutoMapperProfile).Assembly);
 });
 
-// Read model service
+
+builder.Services.AddValidatorsFromAssemblyContaining<SaleCreateValidator>();
+
+
 builder.Services.AddScoped<SalesReadModel>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "devstore_dev_secret_key_please_change";
@@ -69,7 +75,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// ProblemDetails-based error handler
+
 app.UseExceptionHandler(errApp =>
 {
     errApp.Run(async ctx =>
@@ -92,17 +98,19 @@ app.UseExceptionHandler(errApp =>
     });
 });
 
-if (app.Environment.IsDevelopment())
+ 
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DeveloperStore API v1");
+    c.RoutePrefix = string.Empty; 
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Ensure DB & seed (still EnsureCreated; if DB exists, drop volume to recreate tables)
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DeveloperStoreDbContext>();
