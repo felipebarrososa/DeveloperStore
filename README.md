@@ -1,315 +1,302 @@
-# DeveloperStore
+# DeveloperStore API
 
-API de exemplo (DDD, .NET 8) para avaliação técnica. Implementa CRUD de **Vendas** com regras de desconto por quantidade, além de **Produtos**, **Usuários** e **Carrinhos**. Inclui seed de dados, autenticação JWT e testes unitários.
+Uma API completa para gerenciamento de vendas desenvolvida em .NET 8.0 seguindo princípios de Domain-Driven Design (DDD).
 
-## Sumário
-- [Arquitetura & Stack](#arquitetura--stack)
-- [Pré-requisitos](#pré-requisitos)
-- [Subir dependências (Docker)](#subir-dependências-docker)
-- [Executar a API](#executar-a-api)
-- [Autenticação (JWT)](#autenticação-jwt)
-- [Endpoints Principais](#endpoints-principais)
-  - [Sales (Vendas)](#sales-vendas)
-  - [Products / Users / Carts](#products--users--carts)
-- [Paginação / Filtro / Ordenação](#paginação--filtro--ordenação)
-- [Regras de Negócio (Vendas)](#regras-de-negócio-vendas)
-- [Eventos de Domínio (diferencial)](#eventos-de-domínio-diferencial)
-- [Testes & Cobertura](#testes--cobertura)
-- [CI (GitHub Actions)](#ci-github-actions)
-- [Troubleshooting](#troubleshooting)
-- [Licença](#licença)
+## 🚀 Tecnologias Utilizadas
 
----
+- **.NET 8.0** - Framework principal
+- **C#** - Linguagem de programação
+- **Entity Framework Core** - ORM para PostgreSQL
+- **MongoDB** - Banco de dados para read models
+- **MediatR** - Implementação do padrão Mediator
+- **AutoMapper** - Mapeamento de objetos
+- **FluentValidation** - Validação de dados
+- **JWT Bearer** - Autenticação
+- **xUnit** - Framework de testes
+- **NSubstitute** - Mocking framework
+- **FluentAssertions** - Assertions para testes
 
-## Arquitetura & Stack
-**Arquitetura por camadas (DDD):**
-- `DeveloperStore.Domain` — entidades, enums, regras puras.
-- `DeveloperStore.Application` — DTOs, casos de uso/handlers (MediatR), validações, mapeamentos (AutoMapper).
-- `DeveloperStore.Infrastructure` — EF Core (PostgreSQL), Read Model (MongoDB opcional).
-- `DeveloperStore.Api` — endpoints (Minimal API/Controllers), DI, autenticação, Swagger.
-- `tests/DeveloperStore.UnitTests` — xUnit + FluentAssertions + NSubstitute + EF InMemory.
+## 📋 Funcionalidades
 
-**Tecnologias:** .NET 8, EF Core, PostgreSQL, (opcional) MongoDB para Read Model, AutoMapper, MediatR, xUnit, NSubstitute, Swagger.
+### 🛍️ API de Vendas (Core Business)
+- ✅ **CRUD completo** de vendas
+- ✅ **Regras de negócio** de desconto por quantidade:
+  - 4+ itens: 10% de desconto
+  - 10-20 itens: 20% de desconto
+  - Máximo 20 itens por produto
+- ✅ **Cancelamento** de vendas e itens individuais
+- ✅ **Eventos de domínio** (SaleCreated, SaleModified, SaleCancelled, ItemCancelled)
 
----
+### 🔧 APIs de Suporte
+- ✅ **Products API** - Gerenciamento de produtos com categorias
+- ✅ **Users API** - Usuários com roles (Admin, Manager, Customer)
+- ✅ **Carts API** - Carrinhos de compra
+- ✅ **Auth API** - Autenticação JWT
 
-## Pré-requisitos
-- **Docker** e **Docker Compose**  
-- **.NET SDK 8.0**
-- (Opcional) **MongoDB** local, se você quiser materializar o *read model*
+### 🌟 Funcionalidades Avançadas
+- ✅ **Paginação** com `_page` e `_size`
+- ✅ **Ordenação** com `_order` (ex: "price desc, title asc")
+- ✅ **Filtros avançados**:
+  - Filtros parciais com `*` (ex: `title=*phone*`)
+  - Filtros de range com `_min` e `_max` (ex: `_minPrice=50&_maxPrice=200`)
+  - Filtros por categoria, status, role, etc.
+- ✅ **Validação automática** com FluentValidation
+- ✅ **Tratamento de erros** padronizado
+- ✅ **Autenticação e autorização** por roles
 
----
+## 🏗️ Arquitetura
 
-## Subir dependências (Docker)
-Já existe um `docker-compose.yml` na raiz.
+```
+src/
+├── DeveloperStore.Domain/          # Entidades e regras de negócio
+├── DeveloperStore.Application/      # Casos de uso e DTOs
+├── DeveloperStore.Infrastructure/   # Persistência e infraestrutura
+└── DeveloperStore.Api/             # Controllers e configuração
 
-```bash
-docker compose up -d
+tests/
+├── DeveloperStore.UnitTests/       # Testes unitários
+└── DeveloperStore.IntegrationTests/ # Testes de integração
 ```
 
-Cria:
-- **Postgres** em `localhost:5432` com:
-  - DB: `developerstore`
-  - Usuário: `devuser`
-  - Senha: `devpass`
+## 🚀 Como Executar
 
-> Dica: para ver usuários seedados na tabela `Users`:
+### Pré-requisitos
+- .NET 8.0 SDK
+- Docker e Docker Compose
+- IDE (Visual Studio, VS Code, Rider)
+
+### 1. Clone o repositório
 ```bash
-docker exec -it devstore_postgres psql -U devuser -d developerstore -c 'select "Id","Username","Email","Role" from "Users" order by "Id";'
+git clone <repository-url>
+cd DeveloperStore
 ```
 
-### (Opcional) MongoDB local
-Caso deseje usar o **Read Model** de vendas:
+### 2. Inicie os bancos de dados
 ```bash
-docker run -d --name devstore_mongo -p 27017:27017 mongo:6
-```
-Depois, exporte as variáveis (exemplos no PowerShell/Windows):
-```powershell
-$env:Mongo__ConnectionString="mongodb://localhost:27017"
-$env:Mongo__Database="devstore_read"
+docker-compose up -d
 ```
 
----
-
-## Executar a API
-Dentro de `src/DeveloperStore.Api`:
-
+### 3. Execute a aplicação
 ```bash
+cd src/DeveloperStore.Api
 dotnet run
 ```
 
-Saída esperada:
+A API estará disponível em: `https://localhost:7000` ou `http://localhost:5000`
+
+### 4. Acesse o Swagger
 ```
-Now listening on: http://localhost:5000
-Hosting environment: Development
+https://localhost:7000/swagger
 ```
 
-**Swagger:** abra `http://localhost:5000/swagger`
+## 🧪 Como Testar
 
-> A API cria as tabelas no Postgres e faz seed de dados (produtos/usuários).  
-> Para Vendas, você pode criar via endpoints; há também testes/seed de exemplo.
-
----
-
-## Autenticação (JWT)
-A API usa **JWT Bearer**. Primeiro faça login para obter o token.
-
-**Usuário de teste principal (Admin):**
-- **username:** `admin` / **password:** `Pass@123`
-
-> (Opcional, se sua seed também incluir) usuários adicionais:
-> - `johnd` / `m38rmF$`
-> - `mor_2314` / `83r5^_`
-
-**Login:**
+### Executar testes unitários
 ```bash
-curl -X POST http://localhost:5000/auth/login ^
-  -H "Content-Type: application/json" ^
-  -d "{ "username": "admin", "password": "Pass@123" }"
+cd tests/DeveloperStore.UnitTests
+dotnet test
 ```
-Resposta:
+
+### Executar testes de integração
+```bash
+cd tests/DeveloperStore.IntegrationTests
+dotnet test
+```
+
+### Executar todos os testes
+```bash
+dotnet test tests/
+```
+
+## 🔐 Credenciais de Teste
+
+### Usuários pré-criados:
+- **Admin**: `admin` / `Pass@123`
+- **Manager**: `manager` / `Pass@123`
+- **Customer**: `user` / `Pass@123`
+
+### Obter token JWT:
+```bash
+POST /auth/login
+{
+  "username": "admin",
+  "password": "Pass@123"
+}
+```
+
+## 📊 Exemplos de Uso
+
+### Listar produtos com filtros e ordenação
+```bash
+GET /products?_page=1&_size=10&_order=price desc&category=electronics&_minPrice=50
+```
+
+### Listar vendas com filtros de data
+```bash
+GET /sales?from=2024-01-01&to=2024-01-31&_minTotal=100
+```
+
+### Criar uma venda
+```bash
+POST /sales
+Authorization: Bearer <token>
+{
+  "number": "S-1001",
+  "date": "2024-01-15",
+  "customerId": 1,
+  "customerName": "João Silva",
+  "branchId": 1,
+  "branchName": "Centro",
+  "items": [
+    {
+      "productId": 1,
+      "productName": "Mouse Gamer",
+      "quantity": 5,
+      "unitPrice": 100.00
+    }
+  ]
+}
+```
+
+## 🧪 Cobertura de Testes
+
+### Testes Unitários
+- ✅ **DiscountCalculator** - Regras de desconto
+- ✅ **OrderParser** - Parser de ordenação
+- ✅ **Validators** - Validação de DTOs
+- ✅ **Handlers** - Lógica de negócio das vendas
+
+### Testes de Integração
+- ✅ **APIs principais** - Products, Users, Carts, Sales
+- ✅ **Filtros e paginação** - Funcionalidades de listagem
+- ✅ **Tratamento de erros** - Respostas HTTP corretas
+
+## 🔧 Configuração
+
+### Variáveis de ambiente
 ```json
-{ "token": "<JWT>" }
+{
+  "ConnectionStrings": {
+    "Postgres": "Host=localhost;Port=5432;Database=developerstore;Username=devuser;Password=devpass",
+    "Mongo": "mongodb://localhost:27017"
+  },
+  "Jwt": {
+    "Key": "your-secret-key",
+    "Issuer": "DeveloperStore",
+    "Audience": "DeveloperStoreAudience",
+    "ExpiresMinutes": 120
+  }
+}
 ```
 
-Use o token nas chamadas seguintes:
-```
-Authorization: Bearer <JWT>
-```
-
----
-
-## Endpoints Principais
-
-### Sales (Vendas)
-**Modelo (resumo):**
-- Venda: `Number`, `Date`, `CustomerId` + `CustomerName`, `BranchId` + `BranchName`, `Total`, `Cancelled`, `Items[]`
-- Item: `ProductId` + `ProductName`, `Quantity`, `UnitPrice`, `DiscountPercent`, `Total`, `Cancelled`
-
-#### Criar venda
-```bash
-curl -X POST http://localhost:5000/sales ^
-  -H "Authorization: Bearer <JWT>" ^
-  -H "Content-Type: application/json" ^
-  -d "{
-    "number": "S-1001",
-    "date": "2025-08-12",
-    "customerId": 1, "customerName": "Ana",
-    "branchId": 1, "branchName": "Centro",
-    "items": [
-      { "productId": 10, "productName": "Mouse", "quantity": 4, "unitPrice": 100.00 }
-    ]
-  }"
-```
-
-#### Atualizar venda
-```bash
-curl -X PUT http://localhost:5000/sales/1 ^
-  -H "Authorization: Bearer <JWT>" ^
-  -H "Content-Type: application/json" ^
-  -d "{
-    "number": "S-1001",
-    "date": "2025-08-12",
-    "customerId": 1, "customerName": "Ana",
-    "branchId": 1, "branchName": "Centro",
-    "items": [
-      { "productId": 11, "productName": "Teclado", "quantity": 10, "unitPrice": 50.00 }
-    ],
-    "cancelled": false
-  }"
-```
-
-#### Obter por id
-```bash
-curl -H "Authorization: Bearer <JWT>" http://localhost:5000/sales/1
-```
-
-#### Listar (com paginação/filtro/ordem)
-```bash
-curl -H "Authorization: Bearer <JWT>" ^
-  "http://localhost:5000/sales?_page=1&_size=10&_order=date%20desc&customer=ana&branch=centro&from=2025-08-01&to=2025-08-12"
-```
-
-#### Cancelar venda
-```bash
-curl -X POST http://localhost:5000/sales/1/cancel ^
-  -H "Authorization: Bearer <JWT>"
-```
-
-#### Cancelar item
-```bash
-curl -X POST http://localhost:5000/sales/1/items/2/cancel ^
-  -H "Authorization: Bearer <JWT>"
-```
-
-> **DELETE literal (opcional):** Se desejar aderir ao “CRUD literal”, exponha `DELETE /sales/{id}` fazendo “soft delete” (`Cancelled = true`) e documente no Swagger/README.
-
-### Products / Users / Carts
-Os endpoints de **Produtos**, **Usuários** e **Carrinhos** também estão disponíveis e documentados no **Swagger** (`/swagger`).  
-Ex.: `GET /products`, `GET /users`, `GET /carts`, etc.
-
-**Autorização sugerida:**
-- `GET` → **User** ou **Admin**
-- `POST/PUT/DELETE` → **Admin**
-
----
-
-## Paginação / Filtro / Ordenação
-**Query params** na listagem de vendas (`GET /sales`):
-
-| Parâmetro | Tipo      | Exemplo           | Observação                              |
-|-----------|-----------|-------------------|-----------------------------------------|
-| `_page`   | `int`     | `1`               | padrão 1                                |
-| `_size`   | `int`     | `10`              | máximo 100                              |
-| `_order`  | `string`  | `date desc`       | `date`, `total`, `number` (+ ` desc`)   |
-| `from`    | `date`    | `2025-08-01`      | filtra por data mínima (inclusiva)      |
-| `to`      | `date`    | `2025-08-12`      | filtra por data máxima (inclusiva)      |
-| `customer`| `string`  | `ana`             | contém (case-insensitive)               |
-| `branch`  | `string`  | `centro`          | contém (case-insensitive)               |
-
----
-
-## Regras de Negócio (Vendas)
-- **≥ 4 itens** → **10%** de desconto  
-- **10–20 itens** → **20%** de desconto  
-- **> 20 itens** → **não permitido** (retorna erro)  
-- **< 4 itens** → **sem desconto**  
-
-O desconto é aplicado **por item**, e o **total da venda** soma apenas itens **não cancelados**.
-
----
-
-## Eventos de Domínio (diferencial)
-A API publica eventos como **logs estruturados** (sem Message Broker):
-- `SaleCreated`
-- `SaleModified`
-- `SaleCancelled`
-- `ItemCancelled`
-
-Exemplo no log:
-```
-EVENT SaleCreated: { "Id": 1, "Number": "S-1001", "Total": 360.00 }
-```
-
-*(Opcional) Read Model em MongoDB*  
-Se configurado (`Mongo__ConnectionString` / `Mongo__Database`), os *upserts* no read model são realizados e índices são criados para consultas rápidas (ex.: por `Number`, por `BranchId+Date`).
-
----
-
-## Testes & Cobertura
-**Rodar testes:**
-```bash
-dotnet test tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj
-```
-Saída esperada:
-```
-Resumo do teste: total: 17; falhou: 0; bem-sucedido: 17; ignorado: 0
-```
-
-**Cobertura (opcional):**
-```bash
-dotnet test tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj --collect:"XPlat Code Coverage"
-dotnet tool install -g dotnet-reportgenerator-globaltool
-reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport"
-# abra coveragereport/index.html
-```
-
----
-
-## CI (GitHub Actions)
-Crie `.github/workflows/dotnet.yml`:
-
+### Docker Compose
 ```yaml
-name: .NET CI
-on: [push, pull_request]
-jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      - run: dotnet restore
-      - run: dotnet build --configuration Release --no-restore
-      - run: dotnet test ./tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj --no-build --logger "trx;LogFileName=test.trx" --collect:"XPlat Code Coverage"
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: developerstore
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+  
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
 ```
 
----
+## 📈 Funcionalidades de Venda
 
-## Troubleshooting
+### Regras de Desconto
+- **Quantidade 1-3**: Sem desconto
+- **Quantidade 4-9**: 10% de desconto
+- **Quantidade 10-20**: 20% de desconto
+- **Quantidade >20**: Não permitido
 
-**1) “CartDto needs to have a constructor with 0 args…”**  
-Use DTOs de **saída** como **classes** com construtor padrão e listas inicializadas (`new()`), não *records* posicionais.
+### Estrutura de Venda
+```json
+{
+  "id": 1,
+  "number": "S-1001",
+  "date": "2024-01-15",
+  "customerId": 1,
+  "customerName": "João Silva",
+  "branchId": 1,
+  "branchName": "Centro",
+  "total": 450.00,
+  "cancelled": false,
+  "items": [
+    {
+      "productId": 1,
+      "productName": "Mouse Gamer",
+      "quantity": 5,
+      "unitPrice": 100.00,
+      "discountPercent": 0.10,
+      "total": 450.00,
+      "cancelled": false
+    }
+  ]
+}
+```
 
-**2) 401 / 403**  
-- Faça **login** e use o **Bearer** no header.  
-- Para rotas administrativas, use o usuário **admin**.
+## 🎯 Endpoints Principais
 
-**3) “duplicate key value violates unique constraint on Sales.Number”**  
-- O número da venda é único. Troque `Number` ou remova a venda duplicada.
+### Sales API
+- `GET /sales` - Listar vendas com filtros
+- `GET /sales/{id}` - Obter venda por ID
+- `POST /sales` - Criar nova venda
+- `PUT /sales/{id}` - Atualizar venda
+- `POST /sales/{id}/cancel` - Cancelar venda
+- `POST /sales/{id}/items/{itemId}/cancel` - Cancelar item
+- `GET /sales/summary` - Resumo diário por filial
 
-**4) Conexão Postgres**  
-- Confirme que o container está de pé: `docker ps`  
-- Credenciais padrão: `devstore/devstore` (DB `devstore`).
+### Products API
+- `GET /products` - Listar produtos com filtros
+- `GET /products/{id}` - Obter produto por ID
+- `POST /products` - Criar produto (Admin/Manager)
+- `PUT /products/{id}` - Atualizar produto (Admin/Manager)
+- `DELETE /products/{id}` - Deletar produto (Admin/Manager)
+- `GET /products/categories` - Listar categorias
+- `GET /products/category/{category}` - Produtos por categoria
 
-**5) Read Model (Mongo) não configurado**  
-- É opcional. Se quiser usar, suba um Mongo e configure `Mongo__ConnectionString`/`Mongo__Database`.
+### Users API
+- `GET /users` - Listar usuários com filtros
+- `GET /users/{id}` - Obter usuário por ID
+- `POST /users` - Criar usuário (Admin/Manager)
+- `PUT /users/{id}` - Atualizar usuário (Admin/Manager)
+- `DELETE /users/{id}` - Deletar usuário (Admin)
 
----
+### Auth API
+- `POST /auth/login` - Autenticação
 
-## Licença
+## 🚀 Deploy
+
+### Produção
+1. Configure as variáveis de ambiente
+2. Use um banco PostgreSQL gerenciado
+3. Use um cluster MongoDB gerenciado
+4. Configure HTTPS e certificados SSL
+5. Use um reverse proxy (nginx, IIS)
+
+### Docker
+```bash
+docker build -t developerstore .
+docker run -p 5000:5000 developerstore
+```
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
 Uso educacional e de avaliação técnica.
 
----
 
-### Anexos (úteis para o avaliador)
-- **Credenciais Postgres:** `devuser` / `devpass` (DB `developerstore`)
-- **Login para gerar token (Admin):** `admin` / `Pass@123`
-- **Swagger:** `http://localhost:5000/swagger`
-- **Comandos principais:**
-  ```bash
-  docker compose up -d
-  dotnet run --project src/DeveloperStore.Api/DeveloperStore.Api.csproj
-  dotnet test tests/DeveloperStore.UnitTests/DeveloperStore.UnitTests.csproj
-  ```
+**DeveloperStore** - Uma API robusta e escalável para gerenciamento de vendas 🚀
